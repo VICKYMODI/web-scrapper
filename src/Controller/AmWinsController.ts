@@ -62,26 +62,35 @@ export class amWinsController {
 
     static async getPolicyInfo(req,res,next){
       const browser = await puppeteer.launch();
-      // const amwins = {
-      //   userid : "BUCKNERS",
-      //   password : "csrsbuckner"
-      // }
+      const amwins = {
+        0:['BUCKNERS','csrsbuckner'],
+      }
+      const loggedCheck = async (page) => {
+        try {
+            await page.waitForSelector('input[type=submit]', { timeout: 10000 });
+            return true;
+        } catch(err) {
+            return false;
+        }
+    };
       try{
         //Login code
-        const page = await browser.newPage();
+        const page = await newPageWithNewContext(browser);
         await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load', timeout: 0});
-        await page.$eval('input[name="wl_user_name"]', el => el.value = 'BUCKNERS');
-        await page.$eval('input[name="wl_user_password"]', el => el.value = 'csrsbuckner');
+        await page.type('input[name="wl_user_name"]', amwins[0][0]);
+        await page.type('input[name="wl_user_password"]', amwins[0][1]);
+        console.log(await page.cookies());
         await page.waitForSelector('input[type=submit]');
         const inputElement = await page.$('input[type=submit]');
         await inputElement.click();
 
 
         //Fetch Policy
-         const Policy = req.query.Policy;
-         console.log("Policy",Policy);
+        //  const Policy = req.query.Policy;
+        //  console.log("Policy",Policy);
         await page.waitForSelector('input[name="policyNumber"]');
-        await page.$eval('input[name="policyNumber"]', el => el.value = Policy);
+       // await page.$eval('input[name="policyNumber"]', el => el.value = 'HTG01006630');
+        await page.type('input[name="policyNumber"]', req.query.Policy);
         const elements = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[3]/input')
         await elements[0].click()
         await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
@@ -117,14 +126,34 @@ export class amWinsController {
          text4 : text4,
         }
       })
+      await closePage(browser, page);
+      await browser.close();
      }catch(err){
+      if (err instanceof puppeteer.errors.TimeoutError) {
+        // Do something if this is a timeout.
+        
        throw new Error(err)
-     }finally{
-      browser.close();
-     }     
+      }
+     }
+    //  finally{
+    //   browser.close();
+    //  }     
 
       
     }
     
 }
- 
+async function newPageWithNewContext(browser) {
+  const {browserContextId} = await browser._connection.send('Target.createBrowserContext');
+  const page = await browser._createPageInContext(browserContextId);
+  page.browserContextId = browserContextId;
+  return page;
+}
+
+async function closePage(browser, page) {
+  if (page.browserContextId != undefined) {
+    await browser._connection.send('Target.disposeBrowserContext', {browserContextId: page.browserContextId});
+  } else {
+    await page.close();
+  }
+}
