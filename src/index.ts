@@ -6,10 +6,10 @@ import {Server} from "./server";
 let server = new Server().app;
 
 //let app: express.Application = express();
-const port = 5000
+const port = 5500
 
 server.listen(port, () => {
-    console.log('Server is running at port 5000');
+    console.log('Server is running at port 5500');
 });
 
 

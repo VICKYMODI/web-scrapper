@@ -15,7 +15,9 @@ class amWinsRouter {
     }
 
     getRoutes(){
-        this.router.get('/getPolicyInfo',amwinsValidators.getPolicyInfo(),GlobalMiddleWare.checkError,amWinsController.getPolicyInfo);
+        this.router.get('/getPolicyInfo',GlobalMiddleWare.checkLoginstatus,amwinsValidators.getPolicyInfo(),GlobalMiddleWare.checkError,amWinsController.getPolicyInfo);
+        this.router.get('/test',amWinsController.doInNewContext);
+
     }
 
     // postRoutes(){

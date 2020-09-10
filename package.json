@@ -18,6 +18,8 @@
     "@types/nodemon": "^1.19.0",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
+    "cheerio": "^1.0.0-rc.3",
+    "chrome-remote-interface": "^0.28.2",
     "cors": "^2.8.5",
     "csv-parser": "^2.3.3",
     "csv-writer": "^1.6.0",
@@ -33,6 +35,8 @@
     "nodemon": "^2.0.4",
     "puppeteer": "^5.2.1",
     "puppeteer-core": "^5.2.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
     "selenium-webdriver": "^4.0.0-alpha.7",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.5"
