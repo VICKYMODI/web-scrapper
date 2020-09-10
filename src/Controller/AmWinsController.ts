@@ -59,89 +59,122 @@ export class amWinsController {
       }     
     }
 
+    static async doInNewContext(action) {
+      // fetch the browser version (since Chrome 62 the browser target URL is
+      // generated at runtime and can be obtained via the '/json/version'
+      // endpoint, fallback to '/devtools/browser' if not present)
+      const {webSocketDebuggerUrl} = await CDP.Version();
+      // connect to the DevTools special target
+      const browser = await CDP({
+          target: webSocketDebuggerUrl || 'ws://localhost:9222/devtools/browser'
+      });
+      // create a new context
+      const {Target} = browser;
+      const {browserContextId} = await Target.createBrowserContext();
+      const {targetId} = await Target.createTarget({
+          url: 'about:blank',
+          browserContextId
+      });
+      // connct to the new context
+      const client = await CDP({target: targetId});
+      // perform user actions on it
+      try {
+          await action(client);
+      } finally {
+          // cleanup
+          await Target.closeTarget({targetId});
+          await browser.close();
+      }
+    }
 
     static async getPolicyInfo(req,res,next){
       const browser = await puppeteer.launch();
       const amwins = {
-        0:['BUCKNERS','csrsbuckner'],
+        userid : "BUCKNERS",
+        password : "csrsbuckner"
       }
-      const loggedCheck = async (page) => {
-        try {
-            await page.waitForSelector('input[type=submit]', { timeout: 10000 });
-            return true;
-        } catch(err) {
-            return false;
-        }
-    };
+       
       try{
-        //Login code
-        const page = await newPageWithNewContext(browser);
-        await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load', timeout: 0});
-        await page.type('input[name="wl_user_name"]', amwins[0][0]);
-        await page.type('input[name="wl_user_password"]', amwins[0][1]);
-        console.log(await page.cookies());
-        await page.waitForSelector('input[type=submit]');
-        const inputElement = await page.$('input[type=submit]');
-        await inputElement.click();
+        if(req.setTabStatus == 'use same session'){
 
+          console.log("using same browser context")
+          //start web scrappping
 
-        //Fetch Policy
-        //  const Policy = req.query.Policy;
-        //  console.log("Policy",Policy);
-        await page.waitForSelector('input[name="policyNumber"]');
-       // await page.$eval('input[name="policyNumber"]', el => el.value = 'HTG01006630');
-        await page.type('input[name="policyNumber"]', req.query.Policy);
-        const elements = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[3]/input')
-        await elements[0].click()
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
-        const response = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
-        await response[0].click()
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font')
-        const spanVal = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font', e => e.innerText);
-        let text1 = await page.evaluate(h1 => h1.textContent, spanVal[0]);
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]')
-        const spanVal2 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]', e => e.innerText);
-        let text2 = await page.evaluate(h1 => h1.textContent, spanVal2[0]);
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]')
-        const spanVal3 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]', e => e.innerText);
-        let text3 = await page.evaluate(h1 => h1.textContent, spanVal3[0]);
+          const page = await browser.newPage();
+          await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load', timeout: 0});
+          await page.$eval('input[name="wl_user_name"]', el => el.value = 'BUCKNERS');
+          await page.$eval('input[name="wl_user_password"]', el => el.value = 'csrsbuckner');
+          await page.waitForSelector('input[type=submit]');
+          const inputElement = await page.$('input[type=submit]');
+          await inputElement.click();
+          
+          await page.waitForSelector('input[name="policyNumber"]');
+          await page.type('input[name="policyNumber"]', 'HTG01006630');
+          const elements = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[3]/input')
+          await elements[0].click()
+          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
+          const response = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
+          await response[0].click()
+          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font')
+         const spanVal = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font', e => e.innerText);
+         let text1 = await page.evaluate(h1 => h1.textContent, spanVal[0]);
+         await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]')
+         const spanVal2 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]', e => e.innerText);
+          let text2 = await page.evaluate(h1 => h1.textContent, spanVal2[0]);
+          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]')
+         const spanVal3 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]', e => e.innerText);
+         let text3 = await page.evaluate(h1 => h1.textContent, spanVal3[0]);
         await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]')
         const spanVal4 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[5]/td[2]', e => e.innerText);
         let text4 = await page.evaluate(h1 => h1.textContent, spanVal4[0]);
-     // script waits untill the element by given xpath is on the loaded page
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]')
-        const spanVal5 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]', e => e.innerText);
-        let text5 = await page.evaluate(h1 => h1.textContent, spanVal5[0]);
-      console.log(text1)
-      console.log(text2)
-      console.log(text3)
-      console.log(text4) 
-      console.log(text5)
-      //send response
-      res.send({
-        data : {
-         text1 : text1,
-         text2 : text2,
-         text3 : text3,
-         text4 : text4,
+       // script waits untill the element by given xpath is on the loaded page
+       await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]')
+       const spanVal5 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]', e => e.innerText);
+       let text5 = await page.evaluate(h1 => h1.textContent, spanVal5[0]);
+        console.log(text1)
+        console.log(text2)
+        console.log(text3)
+        console.log(text4) 
+        console.log(text5)
+        res.send({
+          data : {
+           text1 : text1,
+           text2 : text2,
+           text3 : text3,
+           text4 : text4,
+          }
+        })
+
+          //end web scrapping
+
+        }else if(req.setTabStatus == 'create new session'){
+
+          const browser = await puppeteer.launch();
+          const newBrowserSession = browser.newPage({ context: 'another-context' }); // creates a page in another browser context
+          console.log("using different browser session")
+          res.send(req.setTabStatus)
+
         }
-      })
-      await closePage(browser, page);
-      await browser.close();
-     }catch(err){
-      if (err instanceof puppeteer.errors.TimeoutError) {
-        // Do something if this is a timeout.
-        
-       throw new Error(err)
-      }
-     }
-    //  finally{
-    //   browser.close();
-    //  }     
+      }catch(e){
+        next(e)
+      }   
 
       
     }
     
+    // this basically is the usual example
+    static async example(client) {
+      // extract domains
+      const {Network, Page} = client;
+      // setup handlers
+      Network.requestWillBeSent((params) => {
+      console.log(params.request.url);
+    });
+  // enable events then start!
+  await Promise.all([Network.enable(), Page.enable()]);
+  await Page.navigate({url: 'https://github.com'});
+  await Page.loadEventFired();
+}
 }
 async function newPageWithNewContext(browser) {
   const {browserContextId} = await browser._connection.send('Target.createBrowserContext');
@@ -150,6 +183,8 @@ async function newPageWithNewContext(browser) {
   return page;
 }
 
+const CDP = require('chrome-remote-interface');
+
 async function closePage(browser, page) {
   if (page.browserContextId != undefined) {
     await browser._connection.send('Target.disposeBrowserContext', {browserContextId: page.browserContextId});
@@ -157,3 +192,4 @@ async function closePage(browser, page) {
     await page.close();
   }
 }
+

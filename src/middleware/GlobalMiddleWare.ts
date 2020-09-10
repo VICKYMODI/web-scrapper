@@ -48,4 +48,35 @@ export class GlobalMiddleWare {
             next(e);
         }
     }
+
+    static async checkLoginstatus(req,res,next){
+        const username = req.query.username;
+        console.log("test",username)
+        try{
+            const UserData:any = await LoggedIn.findOne({'Username' : username,'isLoggedIn':true});
+            if(UserData){
+                const loggedInAt = UserData.created_at;
+                const currentDate = new Date();
+                loggedInAt.setMinutes( loggedInAt.getMinutes() + 30 );
+                console.log("loggedInAt",loggedInAt)
+                console.log("currentDate",currentDate)
+                if(currentDate > loggedInAt){
+                    req.setTabStatus = "use same session"
+                    console.log("test",req.setTabStatus)
+                    next()
+                }else{
+                   
+                    req.setTabStatus = "create new session";
+                    console.log("test1",req.setTabStatus)
+                    next()
+                }
+            }else{
+                req.setTabStatus = "create new session";
+                console.log("test1",req.setTabStatus)
+                next()
+            }
+        }catch(e){
+            next(e)
+        }
+    }
 }
