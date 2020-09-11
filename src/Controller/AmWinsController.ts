@@ -2,6 +2,7 @@
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const {Builder, By} = require('selenium-webdriver');
+const {logger} = require('../utils/logger');
 export class amWinsController {
 
     static async getScrapAmWins(req, res, next) {
@@ -88,7 +89,7 @@ export class amWinsController {
     }
 
     static async getPolicyInfo(req,res,next){
-      const browser = await puppeteer.launch();
+      
       const amwins = {
         userid : "BUCKNERS",
         password : "csrsbuckner"
@@ -96,70 +97,37 @@ export class amWinsController {
        
       try{
         if(req.setTabStatus == 'use same session'){
-
+          logger.info("using different browser session")
           console.log("using same browser context")
           //start web scrappping
-
+          const browser = await puppeteer.launch();
           const page = await browser.newPage();
-          await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load', timeout: 0});
-          await page.$eval('input[name="wl_user_name"]', el => el.value = 'BUCKNERS');
-          await page.$eval('input[name="wl_user_password"]', el => el.value = 'csrsbuckner');
-          await page.waitForSelector('input[type=submit]');
-          const inputElement = await page.$('input[type=submit]');
-          await inputElement.click();
+          //const page = await browser.newPage({ context: 'another-context' }); // creates a page in another browser context
+          const data = await page.goto('http://127.0.0.1:9222/json/version',{waitUntil: 'load', timeout: 0});
+          //let test = JSON.stringify(data)
+          await page.screenshot({path:'error.png'})
+          logger.info("using different browser session",data)
+          console.log("using same session",data)
           
-          await page.waitForSelector('input[name="policyNumber"]');
-          await page.type('input[name="policyNumber"]', 'HTG01006630');
-          const elements = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td[1]/table/tbody/tr[3]/td/table/tbody/tr/td[3]/input')
-          await elements[0].click()
-          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
-          const response = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
-          await response[0].click()
-          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font')
-         const spanVal = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[2]/td/font', e => e.innerText);
-         let text1 = await page.evaluate(h1 => h1.textContent, spanVal[0]);
-         await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]')
-         const spanVal2 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[3]/td[2]', e => e.innerText);
-          let text2 = await page.evaluate(h1 => h1.textContent, spanVal2[0]);
-          await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]')
-         const spanVal3 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[4]/td[2]', e => e.innerText);
-         let text3 = await page.evaluate(h1 => h1.textContent, spanVal3[0]);
-        await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]')
-        const spanVal4 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[5]/td[2]', e => e.innerText);
-        let text4 = await page.evaluate(h1 => h1.textContent, spanVal4[0]);
-       // script waits untill the element by given xpath is on the loaded page
-       await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]')
-       const spanVal5 = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr/td[2]/table/tbody/tr[6]/td[2]', e => e.innerText);
-       let text5 = await page.evaluate(h1 => h1.textContent, spanVal5[0]);
-        console.log(text1)
-        console.log(text2)
-        console.log(text3)
-        console.log(text4) 
-        console.log(text5)
-        res.send({
-          data : {
-           text1 : text1,
-           text2 : text2,
-           text3 : text3,
-           text4 : text4,
-          }
-        })
 
           //end web scrapping
 
         }else if(req.setTabStatus == 'create new session'){
-
+          logger.info("using different browser session")
           const browser = await puppeteer.launch();
-          const newBrowserSession = browser.newPage({ context: 'another-context' }); // creates a page in another browser context
-          console.log("using different browser session")
-          res.send(req.setTabStatus)
+          var page = await browser.newPage({ context: 'another-context' }); // creates a page in another browser context
+          const data = await page.goto('http://127.0.0.1:9222/json/version',{waitUntil: 'load', timeout: 0});
+          //let test = JSON.stringify(data)
+          await page.screenshot({path:'error.png'})
+          logger.info("using different browser session",data)
+          res.send("test")
 
         }
       }catch(e){
+        await page.screenshot({path:'error.png'})
+        logger.error(e)
         next(e)
-      }   
-
-      
+      }         
     }
     
     // this basically is the usual example
