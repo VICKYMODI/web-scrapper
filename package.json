@@ -34,6 +34,7 @@
     "nodemailer-sendgrid-transport": "^0.2.0",
     "nodemon": "^2.0.4",
     "puppeteer": "^5.2.1",
+    "puppeteer-cluster": "^0.22.0",
     "puppeteer-core": "^5.2.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",

@@ -72,7 +72,7 @@ export class GlobalMiddleWare {
                 }
             }else{
                 req.setTabStatus = "create new session";
-                console.log("test1",req.setTabStatus)
+                console.log("test2",req.setTabStatus)
                 next()
             }
         }catch(e){
