@@ -1,6 +1,8 @@
 
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
+import Agent from '../models/Agent';
+import Office from '../models/Office';
 const {Builder, By} = require('selenium-webdriver');
 const { Cluster } = require('puppeteer-cluster');
 const {logger} = require('../utils/logger');
@@ -90,11 +92,32 @@ export class amWinsController {
     }
 
     static async getPolicyInfo(req,res,next){
-      
-      // const amwins = {
-      //   userid : "BUCKNERS",
-      //   password : "csrsbuckner"
-      // }
+
+      const Username = req.query.username;
+      const company = req.query.product;
+      let UserID ;
+      let Password;
+      let companyToFetch
+      try{
+        
+        const agentData:any = await Agent.findOne({'Username':Username});
+        
+        const officeData:any = await Office.findOne({'IslandName':agentData.OfficeIsland})
+        const companyCredentials = officeData.insurance_site_credentials;
+        for(let i=0;i<companyCredentials.length; i++){
+          if(companyCredentials[i] == company){
+            companyToFetch = companyCredentials[i]
+          }
+        }
+
+        UserID = companyToFetch.login;
+        Password = companyToFetch.password;
+
+
+      }catch(e){
+        throw new Error(e)
+      }
+
        const already_logged_in_user={}
 
             //10000= 10s
