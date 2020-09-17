@@ -29,7 +29,7 @@ export class connectController {
          console.log(10);
          await elements[0].click()
          console.log(11);
-         await page.waitForXPath('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
+         await page.waitForXPath('//*[@id="hdr_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
          console.log(12);
          const response = await page.$x('//*[@id="content_container"]/div/table[2]/tbody/tr/td[3]/table/tbody/tr/td/table/tbody/tr[3]')
          console.log(13);

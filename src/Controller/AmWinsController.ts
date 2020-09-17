@@ -112,6 +112,9 @@ export class amWinsController {
                 });
       try{
         if(req.setTabStatus == 'use same session'){
+          console.log(5555555555555555)
+          console.log(req.setTabStatus)
+          console.log(5555555555555555)
           logger.info("using different browser session")
           console.log("using same browser context")
           //start web scrappping
@@ -121,6 +124,9 @@ export class amWinsController {
           //const data = await page.goto('http://127.0.0.1:9222/json/version',{waitUntil: 'load', timeout: 0});
           //let test = JSON.stringify(data)
               await cluster.task(async ({ page, data: url}) => {
+               if(url.same==false){
+
+               }
                 await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load'});
                 await page.type('input[name="wl_user_name"]', url[url['i']][0]);
 
@@ -276,14 +282,6 @@ export class amWinsController {
                               
                               await page.goto('https://osis.amwinsauto.com/prod/index.php?page=policyAccess&subPage=policySearch',{waitUntil: 'load'});
                               
-                              // console.log("User: "+url[url['i']][0])
-                              // console.log("      "+text1)
-                              // console.log("      "+text2)
-                              // console.log("      "+text3)
-                              // console.log("      "+text4)
-                              // console.log("      "+text5)
-                              // console.log('Done!!!')
-                              // console.log('Start 30 min')
                               res.send({
                                 data : {
                                       'Status'          :      status,
@@ -296,23 +294,6 @@ export class amWinsController {
                                         "Financtext2"    :    Financtext2,
                                         "Financtext3"    :    Financtext3
                                       },
-                                      // console.log('Driver #: '+Driverstext2)
-                                      //                 console.log("Name : "+ Driverstext5)
-                                      //                 console.log("Type : "+ Driverstext8)
-                                      //                 console.log("Date of Birth : "+ Driverstext11)
-                                      //                 console.log("Gender : "+ Driverstext14)
-                                      //                 console.log("              " )
-                                      //                 console.log('Driver # : '+Driverstext3)
-                                      //                 console.log("Name : "+ Driverstext6)
-                                      //                 console.log("Type : "+ Driverstext9)
-                                      //                 console.log("Date of Birth : "+ Driverstext12)
-                                      //                 console.log("Gender : "+ Driverstext15)
-                                      //                 console.log("              " )
-                                      //                 console.log('Driver # : '+Driverstext4)
-                                      //                 console.log("Name : "+ Driverstext7)
-                                      //                 console.log("Type : "+ Driverstext10)
-                                      //                 console.log("Date of Birth : "+ Driverstext13)
-                                      //                 console.log("Gender : "+ Driverstext16)
                                   "Driver": {
                                     "Driver #": Driverstext2,
                                     "Name": Driverstext6,
@@ -320,13 +301,6 @@ export class amWinsController {
                                     "Date of Birth ": Driverstext12,
                                     "Gender": Driverstext15,
                                 },
-                                // console.log('Vehicle #: '+Vehicletext2)
-                                //                                                 console.log("Year : "+ Vehicletext4)
-                                //                                                 console.log("Make : "+ Vehicletext6)
-                                //                                                 console.log("Model : "+ Vehicletext8)
-                                //                                                 console.log("VIN : "+ Vehicletext10)
-                                //                                                 console.log("Territory : "+ Vehicletext12)
-                                //                                                 console.log("              ")
                                 "Vehicle": {
                                   "Vehicle #": Vehicletext4,
                                   "Year": Vehicletext6,
@@ -475,20 +449,22 @@ export class amWinsController {
               includes = prizes.some(a => array.every((v, i) => v === a[i]));
           if(includes){
             console.log( users[i][0] + "   User already logged in")
-
+            await cluster.queue({[i]:users[i],i:i,same:true});
           }else{
               already_logged_in_user[i]= [users[i][0],users[i][1]]
+              await cluster.queue({[i]:users[i],i:i,same:false});
           }
   //End Identify loged in users
 
 
-          await cluster.queue({[i]:users[i],i:i});
+          
         }
       await cluster.idle();
       await cluster.close();
 
 
-      }catch(e){
+      }catch
+      (e){
       //  await page.screenshot({path:'error.png'})
         logger.error(e)
         next(e)
