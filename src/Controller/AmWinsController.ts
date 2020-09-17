@@ -101,18 +101,15 @@ export class amWinsController {
       try{
         
         const agentData:any = await Agent.findOne({'Username':Username});
-        
+        console.log("agentData",agentData)
         const officeData:any = await Office.findOne({'IslandName':agentData.OfficeIsland})
         const companyCredentials = officeData.insurance_site_credentials;
-        for(let i=0;i<companyCredentials.length; i++){
-          if(companyCredentials[i] == company){
-            companyToFetch = companyCredentials[i]
-          }
-        }
+        console.log("officeData",officeData)
 
-        UserID = companyToFetch.login;
-        Password = companyToFetch.password;
-
+        UserID = companyCredentials.aggressive.login;
+        console.log("userID",UserID)
+        Password = companyCredentials.aggressive.password;
+        console.log("password",Password)
 
       }catch(e){
         throw new Error(e)
