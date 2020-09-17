@@ -102,7 +102,7 @@ export class amWinsController {
         
         const agentData:any = await Agent.findOne({'Username':Username});
         console.log("agentData",agentData)
-        const officeData:any = await Office.findOne({'IslandName':agentData.OfficeIsland})
+        const officeData:any = await Office.findOne({'office_location':agentData.OfficeName})
         const companyCredentials = officeData.insurance_site_credentials;
         console.log("officeData",officeData)
 
