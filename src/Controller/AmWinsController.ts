@@ -171,11 +171,11 @@ export class amWinsController {
                                 console.log("Gender : "+ Drivers[i+4])
                                 console.log("              " )
                                 drivers.push({
-                                'Driver #: ':Drivers[i],
-                                "Name : ": Drivers[i+1],
-                                "Type : ": Drivers[i+2],
-                                "Date of Birth : ": Drivers[i+3],
-                                "Gender : ": Drivers[i+4],
+                                'Driver # ':Drivers[i],
+                                "Name ": Drivers[i+1],
+                                "Type ": Drivers[i+2],
+                                "Date of Birth  ": Drivers[i+3],
+                                "Gender ": Drivers[i+4],
                                'linkcontent':{}
                                 })
                               }
@@ -219,12 +219,12 @@ export class amWinsController {
                                   console.log("              ")
                                   vehicles.push(
                                     {
-                                      'Vehicle #: ':Vehicle[i],
-                                      "Year : ":Vehicle[i+1],
-                                      "Make : ":Vehicle[i+2],
-                                      "Model :":Vehicle[i+3],
-                                      "VIN :":Vehicle[i+4],
-                                      "Territory :":Vehicle[i+5],
+                                      'Vehicle # ':Vehicle[i],
+                                      "Year  ":Vehicle[i+1],
+                                      "Make ":Vehicle[i+2],
+                                      "Model ":Vehicle[i+3],
+                                      "VIN ":Vehicle[i+4],
+                                      "Territory ":Vehicle[i+5],
                                       'linkcontent':{}
 
                                     }
@@ -415,11 +415,11 @@ export class amWinsController {
                                 console.log("Gender : "+ Drivers[i+4])
                                 console.log("              " )
                                 drivers.push({
-                                'Driver #: ':Drivers[i],
-                                "Name : ": Drivers[i+1],
-                                "Type : ": Drivers[i+2],
-                                "Date of Birth : ": Drivers[i+3],
-                                "Gender : ": Drivers[i+4],
+                                'Driver # ':Drivers[i],
+                                "Name  ": Drivers[i+1],
+                                "Type  ": Drivers[i+2],
+                                "Date of Birth ": Drivers[i+3],
+                                "Gender ": Drivers[i+4],
                                'linkcontent':{}
                                 })
                               }
@@ -463,12 +463,12 @@ export class amWinsController {
                                   console.log("              ")
                                   vehicles.push(
                                     {
-                                      'Vehicle #: ':Vehicle[i],
-                                      "Year : ":Vehicle[i+1],
-                                      "Make : ":Vehicle[i+2],
-                                      "Model :":Vehicle[i+3],
-                                      "VIN :":Vehicle[i+4],
-                                      "Territory :":Vehicle[i+5],
+                                      'Vehicle # ':Vehicle[i],
+                                      "Year  ":Vehicle[i+1],
+                                      "Make ":Vehicle[i+2],
+                                      "Model ":Vehicle[i+3],
+                                      "VIN ":Vehicle[i+4],
+                                      "Territory ":Vehicle[i+5],
                                       'linkcontent':{}
 
                                     }
